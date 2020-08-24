@@ -3,7 +3,8 @@
 
 #pragma region ITesteable
 #define EXTRA_TESTS_ENUM(DO) \
-    DO(PalindromeString_Test) 
+    DO(PalindromeString_Test) \
+	DO(LargestBranch_Test)
 
 MAKE_LOGGABLE_ENUM(EXTRA_TESTS_ENUM, EExtraTests)
 #pragma endregion
@@ -41,6 +42,59 @@ std::string PalindromeString(std::string& S) {
 	return S;
 }
 
+int LargestBranch(int A, int B)
+{
+	const int Sum = A + B;
+
+	if (Sum < 4)
+	{
+		return 0;
+	}
+		
+	const int MaxLargestBranchByB = B * 0.25;
+	const int MaxLargestBranchByA = A * 0.25;
+
+	if (MaxLargestBranchByB > A)
+	{
+		return MaxLargestBranchByB;
+	}
+	else if (MaxLargestBranchByA > B)
+	{
+		return MaxLargestBranchByA;
+	}
+
+	const int MaxLargestBranch = Sum * 0.25;
+	const int AmountPossibleBranchesA = A / MaxLargestBranch;
+	const int AmountPossibleBranchesB = B / MaxLargestBranch;
+	const int bPossibleToFitLargestBranch = AmountPossibleBranchesA + AmountPossibleBranchesB  >= 4;
+
+	if (bPossibleToFitLargestBranch)
+		return MaxLargestBranch;
+
+	if (A < B)
+	{
+		if (MaxLargestBranch > A || !bPossibleToFitLargestBranch)
+		{
+			int AmountOfBranchesNeeded = 4 - AmountPossibleBranchesB;
+			float LargestABranch = A / AmountOfBranchesNeeded;
+
+			return LargestABranch > MaxLargestBranchByB ? LargestABranch : MaxLargestBranchByB;
+		}
+	}
+	else if (B < A)
+	{
+		if (MaxLargestBranch > B || !bPossibleToFitLargestBranch)
+		{
+			int AmountOfBranchesNeeded = 4 - AmountPossibleBranchesA;
+			float LargestBBranch = B / AmountOfBranchesNeeded;
+
+			return LargestBBranch > MaxLargestBranchByA ? LargestBBranch : MaxLargestBranchByA;
+		}
+	}
+
+	return 0;
+}
+
 class TestExtra : public ITesteable<EExtraTests>
 {
 	bool RunTest(EExtraTests TestToRun) override
@@ -67,6 +121,34 @@ class TestExtra : public ITesteable<EExtraTests>
 			if (PalindromeString(Test3) != "zaz")
 			{
 				LastErrorStr = "Error with value: ?a?";
+				return false;
+			}
+
+			return true;
+		}
+		case EExtraTests::LargestBranch_Test:
+		{
+			if (LargestBranch(10,21) != 7)
+			{
+				LastErrorStr = "Error with value: 10,21";
+				return false;
+			}
+
+			if (LargestBranch(13, 11) != 5)
+			{
+				LastErrorStr = "Error with value: 13, 11";
+				return false;
+			}
+
+			if (LargestBranch(2, 1) != 0)
+			{
+				LastErrorStr = "Error with value: 2, 1";
+				return false;
+			}
+
+			if (LargestBranch(1, 8) != 2)
+			{
+				LastErrorStr = "Error with value: 1, 8";
 				return false;
 			}
 
