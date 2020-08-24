@@ -85,6 +85,12 @@ std::vector<int> MaxCounters(int N, const std::vector<int>& A)
 
 int MissingInteger(std::vector<int>& A)
 {
+	int LowerBound = 1;
+	int UpperBound = 0;
+
+	// If the permutation can start with a major value than 1, I'll need to find those bounds.
+	/*
+
 	int LowerBound = std::numeric_limits<int>::max();
 	int UpperBound = 0;
 
@@ -106,9 +112,7 @@ int MissingInteger(std::vector<int>& A)
 			}
 		}
 	}
-
-	if (LowerBound > 1)
-		return 1;
+	*/
 
 	//Swap order it
 	for (size_t i = 0; i < A.size(); i++)
@@ -116,18 +120,27 @@ int MissingInteger(std::vector<int>& A)
 		const int Value = A[i];
 		const int TargetIndex = Value - LowerBound;
 
-		if (Value >= 0 && i != TargetIndex && TargetIndex < A.size())
+		if (Value >= 0)
 		{
-			if (A[i] == A[TargetIndex])
+			if (Value > UpperBound)
 			{
-				continue;
+				UpperBound = Value;
 			}
 
-			std::swap(A[i], A[TargetIndex]);
+			if (i != TargetIndex && TargetIndex < A.size())
+			{
+				if (A[i] == A[TargetIndex])
+				{
+					continue;
+				}
 
-			// As we swap the value of A[i] we need to check again.
-			i--;
+				std::swap(A[i], A[TargetIndex]);
+
+				// As we swap the value of A[i] we need to check again.
+				i--;
+			}
 		}
+
 	}
 
 	for (size_t i = 0; i < A.size(); i++)
