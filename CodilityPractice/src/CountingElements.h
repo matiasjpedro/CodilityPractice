@@ -150,6 +150,12 @@ int PermCheck(std::vector<int>& A)
 	if (A.size() == 1)
 		return A[0] == 1;
 
+	int LowerBound = 1;
+	int UpperBound = A.size();
+
+	// If the permutation can start with a major value than 1, I'll need to find those bounds.
+	/*
+
 	int LowerBound = std::numeric_limits<int>::max();
 	int UpperBound = 0;
 
@@ -171,9 +177,7 @@ int PermCheck(std::vector<int>& A)
 			}
 		}
 	}
-
-	if (LowerBound > 1)
-		return 0;
+	*/
 
 	//Swap order it
 	for (size_t i = 0; i < A.size(); i++)

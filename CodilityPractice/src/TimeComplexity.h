@@ -21,75 +21,45 @@ int FrogJmp(int X, int Y, int D) {
 	return ceil(Steps);
 }
 
-int PermMissingElem(const std::vector<int>& A) {
+int PermMissingElem(std::vector<int>& A) {
 	// write your code in C++14 (g++ 6.2.0)
 
-	if (A.size() == 0)
+	int LowerBound = 1;
+	int UpperBound = A.size();
+
+	//Swap order it
+	for (size_t i = 0; i < A.size(); i++)
 	{
-		return 1;
+		const int Value = A[i];
+		const int TargetIndex = Value - LowerBound;
+
+		if (Value >= 0 && i != TargetIndex && TargetIndex < A.size())
+		{
+			if (A[i] == A[TargetIndex])
+			{
+				continue;
+			}
+
+			std::swap(A[i], A[TargetIndex]);
+
+			// As we swap the value of A[i] we need to check again.
+			i--;
+		}
 	}
 
-	const size_t VectorSize = A.size();
-
-	if (VectorSize == 1)
+	for (size_t i = 0; i < A.size(); i++)
 	{
-		const int FirstValue = A.at(0);
-		return FirstValue > 1 ? FirstValue - 1 : FirstValue + 1;
-	}
-
-	std::unordered_set<int> Lookup;
-	std::vector<int> Pendings;
-
-	int MajorValue = 0;
-	int MinorValue = std::numeric_limits<int>::max();
-
-	for (const int& Element : A)
-	{
-		const int ValueToLookup = Element + 1;
-		Lookup.insert(ValueToLookup);
-
-		if (MajorValue < ValueToLookup)
+		if (A[i] != LowerBound)
 		{
-			MajorValue = ValueToLookup;
-		}
-
-		if (Element < MinorValue)
-		{
-			MinorValue = Element;
-		}
-
-		if (Lookup.find(Element) != Lookup.end())
-		{
-			Lookup.erase(Element);
+			return A[i - 1] + 1;
 		}
 		else
 		{
-			Pendings.push_back(Element);
-		}
-
-	}
-
-	// I'd like to not have the need to use this one
-	for (const int& Element : Pendings)
-	{
-		if (Lookup.find(Element) != Lookup.end())
-		{
-			Lookup.erase(Element);
+			LowerBound++;
 		}
 	}
 
-	//Maybe this is not needed
-	if (Lookup.find(MajorValue) != Lookup.end())
-	{
-		Lookup.erase(MajorValue);
-	}
-
-	if (Lookup.size() > 0)
-	{
-		return *Lookup.begin();
-	}
-
-	return MinorValue > 1 ? MinorValue - 1 : MajorValue;
+	return UpperBound + 1;
 }
 
 int TapeEquilibrium(const std::vector<int>& A) {
@@ -141,7 +111,8 @@ class TestTimeComplexity : public ITesteable<ETimeComplexityTests>
 		case ETimeComplexityTests::PermMissingElem_Test:
 		{
 
-			if (PermMissingElem({2,3,1,5}) != 4)
+			std::vector<int> Test1 = { 2,3,1,5 };
+			if (PermMissingElem(Test1) != 4)
 			{
 				LastErrorStr = "Error with value: 2,3,1,5";
 				return false;
