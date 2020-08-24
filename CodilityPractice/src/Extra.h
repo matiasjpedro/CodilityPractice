@@ -4,7 +4,8 @@
 #pragma region ITesteable
 #define EXTRA_TESTS_ENUM(DO) \
     DO(PalindromeString_Test) \
-	DO(LargestBranch_Test)
+	DO(LargestSquareBranch_Test) \
+	DO(MaxPointsWithoutDuplicates_Test)
 
 MAKE_LOGGABLE_ENUM(EXTRA_TESTS_ENUM, EExtraTests)
 #pragma endregion
@@ -42,7 +43,7 @@ std::string PalindromeString(std::string& S) {
 	return S;
 }
 
-int LargestBranch(int A, int B)
+int LargestSquareBranch(int A, int B)
 {
 	const int Sum = A + B;
 
@@ -95,6 +96,66 @@ int LargestBranch(int A, int B)
 	return 0;
 }
 
+int GetRadioByIndex(const std::vector<int>& X, const std::vector<int>& Y, int Index)
+{
+	return std::max(std::abs(X[Index]), std::abs(Y[Index]));
+}
+
+int MaxPointsWithoutDuplicates(const std::string& S, const std::vector<int>& X, const std::vector<int>& Y)
+{
+	const int Size = S.size();
+
+	int MaxRadio = 0;
+	int ClampedMaxRadio = std::numeric_limits<int>::max();
+
+	std::list<int> PointsOrderedByRadio;
+	std::unordered_map<char, int> RadioByChar;
+
+	for (int i = 0; i < Size; i++)
+	{
+		const char Tag = S[i];
+		const int Radio = GetRadioByIndex(X, Y, i);
+
+		auto Pair = RadioByChar.find(Tag);
+		if (Pair != RadioByChar.end())
+		{
+			const int OtherRadio = Pair->second;
+			const int MaxRadioBetweenMatch = std::max(Radio, OtherRadio);
+			
+			if (ClampedMaxRadio >= MaxRadioBetweenMatch)
+			{
+				ClampedMaxRadio = MaxRadioBetweenMatch;
+
+				while (!PointsOrderedByRadio.empty() && GetRadioByIndex(X, Y, PointsOrderedByRadio.front()) >= ClampedMaxRadio)
+				{
+					PointsOrderedByRadio.pop_front();
+				}
+
+				MaxRadio = !PointsOrderedByRadio.empty() ? GetRadioByIndex(X, Y, PointsOrderedByRadio.front()) : 0;
+			}
+		}
+		
+
+		if (Radio >= ClampedMaxRadio)
+			continue;
+
+		if (Radio > MaxRadio)
+		{
+			MaxRadio = Radio;
+			PointsOrderedByRadio.push_front(i);
+			RadioByChar.emplace(Tag, Radio);
+		}
+		else
+		{
+			PointsOrderedByRadio.push_back(i);
+			RadioByChar.emplace(Tag, Radio);
+		}
+	}
+
+
+	return PointsOrderedByRadio.size();
+}
+
 class TestExtra : public ITesteable<EExtraTests>
 {
 	bool RunTest(EExtraTests TestToRun) override
@@ -126,29 +187,52 @@ class TestExtra : public ITesteable<EExtraTests>
 
 			return true;
 		}
-		case EExtraTests::LargestBranch_Test:
+		case EExtraTests::LargestSquareBranch_Test:
 		{
-			if (LargestBranch(10,21) != 7)
+			if (LargestSquareBranch(10, 21) != 7)
 			{
 				LastErrorStr = "Error with value: 10,21";
 				return false;
 			}
 
-			if (LargestBranch(13, 11) != 5)
+			if (LargestSquareBranch(13, 11) != 5)
 			{
 				LastErrorStr = "Error with value: 13, 11";
 				return false;
 			}
 
-			if (LargestBranch(2, 1) != 0)
+			if (LargestSquareBranch(2, 1) != 0)
 			{
 				LastErrorStr = "Error with value: 2, 1";
 				return false;
 			}
 
-			if (LargestBranch(1, 8) != 2)
+			if (LargestSquareBranch(1, 8) != 2)
 			{
 				LastErrorStr = "Error with value: 1, 8";
+				return false;
+			}
+
+			return true;
+		}
+
+		case EExtraTests::MaxPointsWithoutDuplicates_Test:
+		{
+			if (MaxPointsWithoutDuplicates("ABDCA", { 2,-1,-4,-3,3 }, { 2,-2,4,1,-3 }) != 3)
+			{
+				LastErrorStr = "Error with value: ABDCA";
+				return false;
+			}
+
+			if (MaxPointsWithoutDuplicates("ABB", { 1,-2,-2 }, { 1,-2, 2 }) != 1)
+			{
+				LastErrorStr = "Error with value: ABB";
+				return false;
+			}
+
+			if (MaxPointsWithoutDuplicates("CCD", {1,-1,2 }, {1,-1,-2 }) != 0)
+			{
+				LastErrorStr = "Error with value: CCD";
 				return false;
 			}
 
