@@ -143,6 +143,13 @@ int MissingInteger(std::vector<int>& A)
 
 	}
 
+	//As I swapped all the negative numbers to the right, if the first left value is negative
+	//then I need to return the first positive integer missing, which is 1.
+	if (A.size() > 0 && A[0] <= 0)
+	{
+		return 1;
+	}
+
 	for (size_t i = 0; i < A.size(); i++)
 	{
 		if (A[i] != LowerBound)
